@@ -1,34 +1,206 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#284b3b"><link rel="manifest" href="manifest.json"><title>Rooted — Scripture & Journal</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#f7f5ef;color:#213c30;margin:0}header{background:#284b3b;color:white;padding:24px 20px}main{max-width:650px;margin:auto;padding:20px}.card{background:white;border-radius:16px;padding:20px;margin:16px 0;box-shadow:0 2px 12px #0001}button{background:#284b3b;color:white;border:0;padding:12px 16px;border-radius:10px;cursor:pointer;margin:4px}textarea{box-sizing:border-box;width:100%;padding:12px;border:1px solid #bbb;border-radius:9px;font:inherit}small{color:#63786c}.chapter{display:block;margin:10px 0}.chapter input{width:20px;height:20px;vertical-align:middle}.entry{border-top:1px solid #ddd;padding:14px 0}h1,h2{margin:8px 0}a{color:#285b45}</style></head><body><header><h1>🌿 Rooted</h1><div>A year in God's Word · Scripture & journal</div></header><main><div class="card"><h2 id="dayTitle">Today's reading</h2><p id="theme"></p><p><strong>Mark chapters when you finish reading:</strong></p><div id="chapters"></div><p id="progress"></p><small>The plan includes references, not yet the full World English Bible text. The thematic groupings are preliminary. Automatic notifications are not yet active.</small></div><div class="card"><h2>My reflection</h2><label for="reflection">What stands out to you today?</label><textarea id="reflection" rows="5" placeholder="Write your thoughts, prayers, or questions..."></textarea><button id="save">Save journal entry</button></div><div class="card"><h2>My journal</h2><p><small>Entries are saved only in this browser. Export backups regularly; clearing Safari data may erase them.</small></p><button id="export">Export journal backup</button><div id="entries"></div></div></main><script src="app.js"></script><div class="card">
-  <h2>🌿 Scripture Reminders</h2>
-  <p>Receive Bible verse reminders on your iPhone.</p>
-  <button id="enablePush" type="button">Turn On Notifications</button>
-  <p id="pushStatus"></p>
-</div>
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-window.OneSignalDeferred = window.OneSignalDeferred || [];
-OneSignalDeferred.push(async function(OneSignal) {
-  try {
-    await OneSignal.init({
-      appId: "18232c8a-d9f9-4c87-ac82-1bb7e008bd85",
-      serviceWorkerPath: "OneSignalSDKWorker.js",
-      serviceWorkerParam: { scope: "/Rooted-Bible-/" }
-    });
-    document.getElementById("enablePush").onclick = async function() {
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#284b3b">
+  <link rel="manifest" href="manifest.json">
+  <title>Rooted — Scripture & Journal</title>
+
+  <style>
+    body {
+      font-family: system-ui,-apple-system,sans-serif;
+      background: #f7f5ef;
+      color: #213c30;
+      margin: 0;
+    }
+    header {
+      background: #284b3b;
+      color: white;
+      padding: 24px 20px;
+    }
+    main {
+      max-width: 650px;
+      margin: auto;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin: 16px 0;
+      box-shadow: 0 2px 12px #0001;
+    }
+    button {
+      background: #284b3b;
+      color: white;
+      border: 0;
+      padding: 12px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 4px;
+      font-size: 16px;
+    }
+    textarea {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #bbb;
+      border-radius: 9px;
+      font: inherit;
+    }
+    small { color: #63786c; }
+    .chapter { display: block; margin: 10px 0; }
+    .chapter input {
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+    }
+    .entry {
+      border-top: 1px solid #ddd;
+      padding: 14px 0;
+    }
+    h1,h2 { margin: 8px 0; }
+    a { color: #285b45; }
+    #passageText {
+      white-space: pre-wrap;
+      line-height: 1.8;
+    }
+    #pushStatus {
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>🌿 Rooted</h1>
+    <div>A year in God's Word · Scripture & journal</div>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2 id="dayTitle">Today's reading</h2>
+      <p id="theme"></p>
+      <p><strong>Mark chapters when you finish reading:</strong></p>
+      <div id="chapters"></div>
+      <p id="progress"></p>
+      <small>
+        Follow your daily reading plan and tap Read
+        to open chapters from the World English Bible.
+      </small>
+    </div>
+
+    <div class="card" id="passage" hidden>
+      <h2 id="passageTitle">Scripture</h2>
+      <div id="passageText"></div>
+    </div>
+
+    <div class="card">
+      <h2>🌿 Scripture Reminders</h2>
+      <p>Receive Bible verse reminders on your iPhone.</p>
+      <button id="enablePush" type="button">
+        Turn On Notifications
+      </button>
+      <p id="pushStatus">Checking notification setup…</p>
+    </div>
+
+    <div class="card">
+      <h2>My reflection</h2>
+      <label for="reflection">
+        What stands out to you today?
+      </label>
+      <textarea
+        id="reflection"
+        rows="5"
+        placeholder="Write your thoughts, prayers, or questions..."
+      ></textarea>
+      <button id="save" type="button">
+        Save journal entry
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>My journal</h2>
+      <p>
+        <small>
+          Entries are saved on this device.
+          Export backups regularly.
+          Clearing browser data may erase them.
+        </small>
+      </p>
+      <button id="export" type="button">
+        Export journal backup
+      </button>
+      <div id="entries"></div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+
+  <script
+    src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
+    defer>
+  </script>
+
+  <script>
+    const pushButton = document.getElementById("enablePush");
+    const pushStatus = document.getElementById("pushStatus");
+
+    let rootedOneSignal = null;
+
+    pushButton.onclick = async function () {
+      if (!rootedOneSignal) {
+        pushStatus.textContent =
+          "Notifications are still loading. Try again shortly.";
+        return;
+      }
+
       try {
-        await OneSignal.Notifications.requestPermission();
-        document.getElementById("pushStatus").textContent =
-          OneSignal.Notifications.permission
-            ? "Notifications are allowed!"
-            : "Notifications have not been allowed yet.";
+        await rootedOneSignal.Notifications.requestPermission();
+
+        if (rootedOneSignal.Notifications.permission) {
+          pushStatus.textContent =
+            "Notifications allowed! Rooted can receive reminders.";
+        } else {
+          pushStatus.textContent =
+            "Notification permission was not granted. Check iPhone Settings.";
+        }
       } catch (error) {
-        document.getElementById("pushStatus").textContent =
+        pushStatus.textContent =
           "Could not enable notifications: " + error.message;
       }
     };
-  } catch (error) {
-    document.getElementById("pushStatus").textContent =
-      "Notification setup error: " + error.message;
-  }
-});
-</script></body></html>
+
+    window.OneSignalDeferred =
+      window.OneSignalDeferred || [];
+
+    window.OneSignalDeferred.push(async function (OneSignal) {
+      try {
+        await OneSignal.init({
+          appId: "18232c8a-d9f9-4c87-ac82-1bb7e008bd85",
+          serviceWorkerPath: "OneSignalSDKWorker.js",
+          serviceWorkerParam: {
+            scope: "/Rooted-Bible-/onesignal/"
+          },
+          notifyButton: {
+            enable: false
+          }
+        });
+
+        rootedOneSignal = OneSignal;
+
+        pushStatus.textContent =
+          OneSignal.Notifications.permission
+            ? "Notifications are already allowed."
+            : "Tap the button to allow Scripture reminders.";
+      } catch (error) {
+        pushStatus.textContent =
+          "Notification setup error: " + error.message;
+      }
+    });
+  </script>
+</body>
+</html>
